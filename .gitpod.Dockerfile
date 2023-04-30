@@ -64,3 +64,6 @@ RUN apt-get install -y \
 
 # For Qt WebEngine on docker
 ENV QTWEBENGINE_DISABLE_SANDBOX 1
+
+# To Install java SDK 17+
+RUN sdk install java 17.0.1-open && sdk default java 17.0.1-open
