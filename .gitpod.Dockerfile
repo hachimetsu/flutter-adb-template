@@ -39,14 +39,29 @@ RUN apt update \
     && yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-30;google_apis;x86_64" \
     && echo no | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n avd28 -k "system-images;android-30;google_apis;x86_64" 
 
-# Install Google Chrome
+
+# Install PulseAudio
 USER root
-RUN apt-get update \
-  && apt-get install -y apt-transport-https \
-  && curl -sSL https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
-  && echo "deb [arch=amd64] https://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
-  && apt-get update \
-  && sudo apt-get install -y google-chrome-stable
+RUN apt update -y && apt upgrade -y \
+    && apt-get clean
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y pulseaudio \
+    && apt update -y \
+    && apt-get clean
+
+# Install pavucontrol For PulseAudio
+RUN apt-get install -y pavucontrol \
+    && apt update -y \
+    && apt-get clean
+
+
+# Install Brave browser or any other browser you prefer
+RUN wget -qO - https://brave-browser-apt-release.s3.brave.com/brave-core.asc | gpg --dearmor > brave-keyring.gpg \
+    && install -o root -g root -m 644 brave-keyring.gpg /usr/share/keyrings/ \
+    && echo "deb [signed-by=/usr/share/keyrings/brave-keyring.gpg arch=amd64] https://brave-browser-apt-release.s3.brave.com/ stable main" | tee /etc/apt/sources.list.d/brave.list \
+    && apt update -y \
+    && apt install -y brave-browser \
+    && apt-get clean
 
 # misc deps
 RUN apt-get install -y \
